@@ -38,7 +38,7 @@ const socket = io();
 
 		  setInterval(() => {
 			  takePhoto();
-		  }, 200);
+		  }, 500);
 
 		  clearphoto();
 	  }
@@ -61,6 +61,11 @@ const socket = io();
 			  ctx.drawImage(video, 0, 0, width, height);
 
 			  var data = canvas.toDataURL('image/png');
+
+			  socket.emit('feed', data,(error) => {
+				console.log('data delievered');
+			  });
+
 			  curPhoto = ctx.getImageData(0, 0, width, height).data;
 			  rmsDiff(prevPhoto, curPhoto);
 		  } else {

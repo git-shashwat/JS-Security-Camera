@@ -23,6 +23,10 @@ io.on('connection', (socket) => {
         console.log(options);
     });
 
+    socket.on('feed', (data, callback) => {
+        io.emit('feedDisplay', data);
+    })
+
     socket.on('alert', (rms, callback) => {
         io.emit('alertMessage', rms);
     })
