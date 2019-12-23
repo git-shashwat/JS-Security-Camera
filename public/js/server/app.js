@@ -38,7 +38,7 @@ const socket = io();
 
 		  setInterval(() => {
 			  takePhoto();
-		  }, 500);
+		  }, 800);
 
 		  clearphoto();
 	  }
