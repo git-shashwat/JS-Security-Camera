@@ -1,19 +1,19 @@
 {
-  "name": "security-camera-ki-kahaani",
+  "name": "SuperSecureHQ",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
-  },
-  "author": "",
+  "main": "main.js",
+  "author": "git-shashwat",
   "license": "ISC",
-  "dependencies": {
-    "express": "^4.17.1",
-    "socket.io": "^2.3.0"
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
   },
   "devDependencies": {
-    "nodemon": "^1.19.4"
+    "vite": "^2.3.8"
+  },
+  "dependencies": {
+    "firebase": "^8.6.8"
   }
 }
