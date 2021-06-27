@@ -1,7 +1,7 @@
-import firebase from 'firebase/app';
-import 'firebase/firestore';
+import firebase from "firebase/app";
+import "firebase/firestore";
 
-import './style.css';
+import "./style.css";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDmMzjcBlAZoxMbxFuHR3SO6EXxtg2WVGM",
@@ -9,7 +9,7 @@ const firebaseConfig = {
   projectId: "js-security-cam",
   storageBucket: "js-security-cam.appspot.com",
   messagingSenderId: "9520903449",
-  appId: "1:9520903449:web:1973dc602a6885d93e0188"
+  appId: "1:9520903449:web:1973dc602a6885d93e0188",
 };
 
 if (!firebase.apps.length) {
@@ -21,11 +21,11 @@ const firestore = firebase.firestore();
 const servers = {
   iceServers: [
     {
-      urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302']
+      urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"],
     },
   ],
   iceCandidatePoolSize: 10,
-}
+};
 
 // Global State
 const pc = new RTCPeerConnection(servers);
@@ -33,20 +33,23 @@ let localStream = null;
 let remoteStream = null;
 
 // HTML elements
-const webcamButton = document.getElementById('webcamButton');
-const webcamVideo = document.getElementById('webcamVideo');
-const callButton = document.getElementById('callButton');
-const callInput = document.getElementById('callInput');
-const answerButton = document.getElementById('answerButton');
-const remoteVideo = document.getElementById('remoteVideo');
-const hangupButton = document.getElementById('hangupButton');
-const theCanvas = document.getElementById('thecanvas');
-const theAudio = document.getElementById('theAudio')
+const webcamButton = document.getElementById("webcamButton");
+const webcamVideo = document.getElementById("webcamVideo");
+const callButton = document.getElementById("callButton");
+const callInput = document.getElementById("callInput");
+const answerButton = document.getElementById("answerButton");
+const remoteVideo = document.getElementById("remoteVideo");
+const hangupButton = document.getElementById("hangupButton");
+const theCanvas = document.getElementById("thecanvas");
+const theAudio = document.getElementById("theAudio");
 
 // 1. Setup media sources
 
 webcamButton.onclick = async () => {
-  localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+  localStream = await navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true,
+  });
   remoteStream = new MediaStream();
 
   // Push tracks from local stream to peer connection
@@ -72,9 +75,9 @@ webcamButton.onclick = async () => {
 // 2. Create an offer
 callButton.onclick = async () => {
   // Reference Firestore collections for signaling
-  const callDoc = firestore.collection('calls').doc();
-  const offerCandidates = callDoc.collection('offerCandidates');
-  const answerCandidates = callDoc.collection('answerCandidates');
+  const callDoc = firestore.collection("calls").doc();
+  const offerCandidates = callDoc.collection("offerCandidates");
+  const answerCandidates = callDoc.collection("answerCandidates");
 
   callInput.value = callDoc.id;
 
@@ -112,7 +115,7 @@ callButton.onclick = async () => {
   // When answered, add candidate to peer connection
   answerCandidates.onSnapshot((snapshot) => {
     snapshot.docChanges().forEach((change) => {
-      if (change.type === 'added') {
+      if (change.type === "added") {
         const candidate = new RTCIceCandidate(change.doc.data());
         pc.addIceCandidate(candidate);
       }
@@ -125,9 +128,9 @@ callButton.onclick = async () => {
 // 3. Answer the call with the unique ID
 answerButton.onclick = async () => {
   const callId = callInput.value;
-  const callDoc = firestore.collection('calls').doc(callId);
-  const answerCandidates = callDoc.collection('answerCandidates');
-  const offerCandidates = callDoc.collection('offerCandidates');
+  const callDoc = firestore.collection("calls").doc(callId);
+  const answerCandidates = callDoc.collection("answerCandidates");
+  const offerCandidates = callDoc.collection("offerCandidates");
 
   pc.onicecandidate = (event) => {
     event.candidate && answerCandidates.add(event.candidate.toJSON());
@@ -150,7 +153,7 @@ answerButton.onclick = async () => {
 
   offerCandidates.onSnapshot((snapshot) => {
     snapshot.docChanges().forEach((change) => {
-      if (change.type === 'added') {
+      if (change.type === "added") {
         let data = change.doc.data();
         pc.addIceCandidate(new RTCIceCandidate(data));
       }
@@ -160,49 +163,49 @@ answerButton.onclick = async () => {
 
 /* Security Camera Functionality Starts */
 
-// let prevPhoto = [];
-// let curPhoto = [];
+let prevPhoto = [];
+let curPhoto = [];
 
-// function clearPhoto() {
-//   var ctx = theCanvas.getContext("2d");
-//   ctx.fillStyle = "#AAA";
-//   ctx.fillRect(0, 0, 300, 300);
+function clearPhoto() {
+  var ctx = theCanvas.getContext("2d");
+  ctx.fillStyle = "#AAA";
+  ctx.fillRect(0, 0, 300, 300);
 
-//   prevPhoto = ctx.getImageData(0, 0, 300, 300).data;
-// }
+  prevPhoto = ctx.getImageData(0, 0, 300, 300).data;
+}
 
-// function takePhoto() {
-//   if (remoteVideo) {
-//     prevPhoto = curPhoto;
-//     let ctx = theCanvas.getContext("2d");
-//     ctx.drawImage(remoteVideo, 0, 0, 300, 300);
+function takePhoto() {
+  if (remoteVideo) {
+    prevPhoto = curPhoto;
+    let ctx = theCanvas.getContext("2d");
+    ctx.drawImage(remoteVideo, 0, 0, 300, 300);
 
-//     curPhoto = ctx.getImageData(0, 0, 300, 300).data;
-//     rmsDiff(prevPhoto, curPhoto);
-//   } else {
-//     clearPhoto();
-//   }
-// }
+    curPhoto = ctx.getImageData(0, 0, 300, 300).data;
+    rmsDiff(prevPhoto, curPhoto);
+  } else {
+    clearPhoto();
+  }
+}
 
-// function rmsDiff(data1, data2) {
-//   var squares = 0;
-//   if (data1.length !== 0) {
-//     for (var i = 0; i < data1.length; i++) {
-//       squares += (data1[i] - data2[i]) * (data1[i] - data2[i]);
-//     }
-//     var rms = Math.sqrt(squares / data1.length);
-//     if (rms >= 7) {
-//       theAudio.play();
-//     }
-//   }
-// }
+function rmsDiff(data1, data2) {
+  var squares = 0;
+  if (data1.length !== 0) {
+    for (var i = 0; i < data1.length; i++) {
+      squares += (data1[i] - data2[i]) * (data1[i] - data2[i]);
+    }
+    var rms = Math.sqrt(squares / data1.length);
+    if (rms >= 7) {
+      theAudio.play();
+    }
+  }
+}
 
-// (function() {
-//   setInterval(() => {
-//     takePhoto();
-//   }, 5000);
+(function () {
+  setInterval(() => {
+    takePhoto();
+  }, 5000);
 
-//   clearPhoto();
-// })();
+  clearPhoto();
+})();
 
 /* Security Camera functionality ends */
